@@ -1,10 +1,10 @@
 # PK2 JSON Sprite server
-Possible backend to future web-based sprite editor.
+Possible backend to future web-based sprite editor.\
 To compile:
 > make all
 
 To run:
-> export PK2_SPRITE_PATH=your_pk2_directory/res/sprites
+> export PK2_SPRITE_PATH=your_pk2_directory/res/sprites\
 > ./server.x
 
 # Requests
