@@ -6,25 +6,22 @@
 #include <stdexcept>
 
 
-namespace kogutozaurus
+namespace pk2sprite
 {
 
-PK2Sprite::PK2Sprite()
-{
+PK2Sprite::PK2Sprite(){
     //std::cout<<"PK2Sprite c-tor"<<std::endl;
 
     char*c = reinterpret_cast<char*>(this);
     size_t n = sizeof(PK2Sprite);
-    for(size_t i=0;i<n;++i)
-    {
+    for(size_t i=0;i<n;++i){
         c[i] = 0;
     }
 
     strcpy(this->version, "1.3");
     strcpy(this->bmp_path, "");
     
-    for(int i=0;i<7;++i)
-    {
+    for(int i=0;i<7;++i){
         strcpy(this->sound_path[i], "");
     }
 
@@ -39,6 +36,8 @@ PK2Sprite::PK2Sprite()
 void to_json(nlohmann::json& j, const PK2Sprite& c){
 
     using json = nlohmann::json;
+
+    j["version"] = "2.0";
 
     j["type"] = c.sprite_type;
     j["bmp"] = c.bmp_path;
@@ -80,11 +79,12 @@ void to_json(nlohmann::json& j, const PK2Sprite& c){
         }
     }
     anim["sequences"] = sequences;
+    anim["frame_rate"] = c.frame_rate;
 
     j["animations"] = anim;
     json frame;
 
-    frame["rate"] = c.frame_rate;
+    //frame["rate"] = c.frame_rate;
     frame["pos_x"] = c.frame_x_pos;
     frame["pos_y"] = c.frame_y_pos;
     frame["width"] = c.frame_width;
@@ -165,92 +165,169 @@ void get_limited_str(const nlohmann::json&j, const char*name, char* dest, std::s
     }
 }
 
-/*
+inline void get_int_field(const nlohmann::json&j, const char*name, int& dest){
+    if(j.contains(name)){
+        dest = j[name].get<int>();
+    }
+}
+
+inline void get_double_field(const nlohmann::json&j, const char*name, double& dest){
+    if(j.contains(name)){
+        dest = j[name].get<double>();
+    }
+}
+
+inline void get_boolean_field(const nlohmann::json&j, const char*name, bool& dest){
+    if(j.contains(name)){
+        dest = j[name].get<bool>();
+    }
+}
+
+void get_unsigned_char_field(const nlohmann::json&j, const char*name, unsigned char& dest){
+    if(j.contains(name)){
+        int temp = j[name].get<int>();
+        dest = (unsigned char)temp;
+    }
+}
+
+// I haven't tested this function yet, it may have bugs!
 void from_json(const nlohmann::json&j, PK2Sprite& sprite){
+    if(j.contains("ai")){
+        const nlohmann::json& ai_table = j["ai"];
 
-    j.at("type").get_to(sprite.sprite_type);
-    get_limited_str(j, "bmp", sprite.bmp_path, 100);
+        std::size_t size = ai_table.size();
+        if(size>10){
+            throw std::length_error("Too many AI positions, max 10 allowed.");
+        }
+        for(std::size_t i=0;i<size;++i){
+            sprite.AI[i] = ai_table[i];
+        }
+    }
+    get_limited_str(j, "ammo1", sprite.ammo1, 100);
+    get_limited_str(j, "ammo2", sprite.ammo2, 100);
+    if(j.contains("animations")){
+        const nlohmann::json& aj = j["animations"];
 
-    if(j.contains("sounds")){
-        const nlohmann::json& sj = j["sounds"];
-        if(sj.is_array()){
-            std::size_t sj_size = sj.size();
-            if(sj_size > 7){
-                throw std::length_error("Too many sounds, max 10 allowed");
+        get_unsigned_char_field(aj, "animations_number", sprite.animations_number);
+        get_unsigned_char_field(aj, "frame_rate", sprite.frame_rate);
+        get_unsigned_char_field(aj, "frames_number", sprite.frames_number);
+
+        if(aj.contains("sequences")){
+            const nlohmann::json& sj = aj["sequences"];
+            std::size_t size = sj.size();
+            if(size > 20){
+                throw std::length_error("Too many animation sequences, max 20 allowed.");
             }
+            for(std::size_t i=0;i<size;++i){
+                get_boolean_field(sj, "loop", sprite.animation_sequences[i].loop);
+                const nlohmann::json& sequence = sj["sequence"];
+                std::size_t size2 = sequence.size();
+                if(size2 > 10){
+                    throw std::length_error("Too long animation sequence, max 10 allowed.");
+                }
 
-            for(std::size_t i=0;i<sj_size;++i){
-                const nlohmann::json& sound = sj[i];
-                if(sound.is_object()){
-                    if(sound.contains("type")){
-                        j.at("type").get_to(sprite.sound_types[i]);
-                    }
-                    get_limited_str(sound, "path", sprite.sound_path[i], 100);
+                for(std::size_t k=0;k<size2;++k){
+                    int tmp = sj[k].get<int>();
+                    sprite.animation_sequences[i].sequence[k] = (unsigned char)tmp;
                 }
             }
         }
     }
 
-    if(j.contains("animations") && j["animations"].is_object()){
-        const nlohmann::json& animations = j["animations"];
-        animations.at("frames_number").get_to(sprite.frames_number);
-        animations.at("animations_number").get_to(sprite.animations_number);
+    get_int_field(j, "attack1_time", sprite.attack1_time);
+    get_int_field(j, "attack2_time", sprite.attack2_time);
+    
+    get_limited_str(j, "bmp", sprite.bmp_path, 100);
 
+    get_boolean_field(j, "bonus_always", sprite.bonus_always);
+    get_limited_str(j, "bonus_sprite", sprite.bonus_sprite, 100);
+    get_unsigned_char_field(j, "bonuses_number", sprite.bonuses_number);
 
+    get_boolean_field(j, "boss", sprite.boss);
+
+    get_boolean_field(j, "can_glide", sprite.can_glide);
+
+    get_boolean_field(j, "can_open_locks", sprite.can_open_locks);
+
+    get_boolean_field(j, "can_swim", sprite.can_swim);
+
+    get_int_field(j, "charge_time", sprite.charge_time);
+
+    get_unsigned_char_field(j, "color", sprite.color);
+
+    get_int_field(j, "demage", sprite.demage);
+    get_unsigned_char_field(j, "demage_type", sprite.demage_type);
+
+    get_boolean_field(j, "enemy", sprite.enemy);
+
+    get_int_field(j, "energy", sprite.energy);
+
+    if(j.contains("frame")){
+        const nlohmann::json& fj = j["frame"];
+        get_int_field(fj, "height", sprite.frame_height);
+        get_int_field(fj, "pos_x", sprite.frame_x_pos);
+        get_int_field(fj, "pos_y", sprite.frame_y_pos);
+
+        get_int_field(fj, "space", sprite.space_between_frames);
+        get_int_field(fj, "width", sprite.frame_width);
     }
-    
+    get_int_field(j, "height", sprite.height);
+
+    get_int_field(j, "how_destroyed", sprite.how_destroyed);
+
+    get_boolean_field(j, "is_wall", sprite.isWall);
+    get_boolean_field(j, "is_wall_down", sprite.is_wall_down);
+    get_boolean_field(j, "is_wall_left", sprite.is_wall_left);
+    get_boolean_field(j, "is_wall_right", sprite.is_wall_rigth);
+    get_boolean_field(j, "is_wall_up", sprite.is_wall_up);
+
+    get_boolean_field(j, "makes_sounds", sprite.makes_sounds);
+
+    get_unsigned_char_field(j, "max_jump_time", sprite.max_jump_time);
+
+    get_double_field(j, "max_speed", sprite.max_speed);
+
     get_limited_str(j, "name", sprite.name, 30);
-    
-    j.at("is_wall_up").get_to(sprite.is_wall_up);
-    j.at("is_wall_left").get_to(sprite.is_wall_left);
-    j.at("is_wall_down").get_to(sprite.is_wall_down);
-    j.at("is_wall_right").get_to(sprite.is_wall_up);
 
-    if(j.contains("unused_data")){
+    get_int_field(j, "parallax_type", sprite.parallax_type);
 
-        const nlohmann::json& u_j = j["unused_data"];
-        if(u_j.is_object()){
-            u_j.at("transparency").get_to(sprite.transparency);
-            u_j.at("is_transparent").get_to(sprite.is_transparent);
-            u_j.at("charge_time2").get_to(sprite.unused_charge_time2);
+    get_unsigned_char_field(j, "protection_type", sprite.protection_type);
+
+    get_boolean_field(j, "random_sound_frequency", sprite.random_sound_frequency);
+
+    get_int_field(j, "score", sprite.score);
+
+    get_int_field(j, "sound_frequency", sprite.sound_frequency);
+    if(j.contains("sounds") && j["sounds"].is_array()){
+
+        const nlohmann::json& sj = j["sounds"];
+        std::size_t size = sj.size();
+        if(size>7){
+            throw std::length_error("Too many sounds, max 7 allowed.");
+        }
+        for(std::size_t i=0;i<size;++i){
+            get_limited_str(sj[i], "path", sprite.sound_path[i], 100);
+            get_int_field(sj[i], "type", sprite.sound_types[i]);
         }
     }
-    j.at("can_glide").get_to(sprite.can_glide);
-    j.at("bonus_always").get_to(sprite.bonus_always);
-    j.at("can_swim").get_to(sprite.can_swim);
-    throw std::runtime_error("Sprite from json not finished yet!");
-}
 
-PK2SpriteBinary::PK2SpriteBinary(const std::string& filename){
-    std::ifstream in(filename, std::ios::binary);
-    in.read(this->mData, 1668);
-
-    if(!in.good()){
-        throw std::runtime_error(std::string("File not found: ") + filename);
-    }
-
-    in.close();
-}
-
-
-
-
-PK2Sprite PK2SpriteBinary::toSPR() const{
-    std::string v(this->mData);
-    std::cout<<"v.size() = "<<v.size()<<std::endl;
-    if(v!="1.3"){
-        throw PK2SpriteBadFormatException();
-    }
-
-    PK2Sprite sprite;
-    char* ptr = reinterpret_cast<char*>(&sprite);
+    get_limited_str(j, "sprite_to_turn_into", sprite.sprite_to_turn_into, 100);
     
-    memcpy(ptr, this->mData, 1140);
-    memcpy(ptr+1144, this->mData + 1144, 528);
+    get_int_field(j, "type", sprite.sprite_type);
 
-    return sprite;
+    if(j.contains("unused_data")){
+        const nlohmann::json& udj = j["unused_data"];
+        get_int_field(udj, "charge_time2", sprite.unused_charge_time2);
+        get_boolean_field(udj, "is_transparent", sprite.is_transparent);
+        get_unsigned_char_field(udj, "transparency", sprite.transparency);
+    }
+
+    get_boolean_field(j, "vibrates", sprite.vibrates);
+    
+    get_double_field(j, "weight", sprite.weight);
+
+    get_int_field(j, "width", sprite.width);
 }
-*/
 
 PK2Sprite loadFromSPR(const std::string & filename)
 {
@@ -268,10 +345,6 @@ PK2Sprite loadFromSPR(const std::string & filename)
 
 PK2Sprite loadFromSPR(std::istream & in)
 {
-    //PK2Sprite sprite;
-
-    //char* ptr = reinterpret_cast<char*>(&sprite);
-
     PK2Sprite sprite;
     char* ptr = reinterpret_cast<char*>(&sprite);
     in.read(ptr, 1140);

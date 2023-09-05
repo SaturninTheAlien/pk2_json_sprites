@@ -9,7 +9,7 @@
 #include <shared_mutex>
 #include "pk2sprite.h"
 
-namespace kogutozaurus{
+namespace pk2sprite{
 
 class PK2SpriteRepository{
 public:

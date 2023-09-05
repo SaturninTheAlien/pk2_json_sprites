@@ -6,7 +6,7 @@
 #include <string>
 #include <shared_mutex>
 
-namespace kogutozaurus{
+namespace pk2sprite{
 
 inline void json_response(httplib::Response &res, const nlohmann::json& j, int status=200){
     res.status = status;

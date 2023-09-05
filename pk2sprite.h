@@ -2,6 +2,7 @@
 #include <ostream>
 #include <istream>
 #include "3rd_party/json.hpp"
+#include <stdexcept>
 
 /*
 #define PK2SPRITE_CURRENT_VERSION "1.3"
@@ -16,10 +17,15 @@
 #define SPRITE_MAX_SOUNDS        7
 #define	DAMAGE_TIME             50
 */
-namespace kogutozaurus
+namespace pk2sprite
 {
 
-class PK2SpriteBadFormatException {};
+class PK2SpriteBadFormatException: public std::exception{
+public:
+    const char* what() const noexcept{
+        return "Unsupported sprite format!";
+    }
+};
 
 
 class PK2SPRITE_ANIMATION

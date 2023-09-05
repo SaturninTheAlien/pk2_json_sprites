@@ -3,15 +3,13 @@
 #include <algorithm>
 #include <iostream>
 
-namespace kogutozaurus{
+namespace pk2sprite{
 namespace fs = std::filesystem;
 
 PK2SpriteRepository::PK2SpriteRepository(const std::string& pk2_path){
 
-    for (const auto & entry : fs::directory_iterator(pk2_path))
-    {
-        if(entry.is_regular_file())
-        {
+    for (const auto & entry : fs::directory_iterator(pk2_path)){
+        if(entry.is_regular_file()){
             fs::path p = entry.path();
             std::string filename = p.filename();
             if(filename.size()>4 && filename.substr(filename.size()-4,4)==".spr"){

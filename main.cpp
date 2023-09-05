@@ -57,7 +57,7 @@ int main(int argc, char**argv)
     }
 
     std::cout<<"Loading sprites..."<<std::endl;
-    kogutozaurus::PK2SpriteRepository repo(sprites_path);
+    pk2sprite::PK2SpriteRepository repo(sprites_path);
 
 
     httplib::Server svr;
