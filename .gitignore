@@ -1,5 +1,6 @@
 *.x
 *.o
 *.spr
-
+start.sh
 .vscode
+test.cpp
