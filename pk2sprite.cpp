@@ -32,6 +32,15 @@ PK2Sprite::PK2Sprite(){
     strcpy(this->ammo2, "");
 }
 
+std::map<std::string, int> soundsMap ={
+    {"demage", SOUND_DAMAGE},
+    {"destruction", SOUND_DESTRUCTION},
+    {"attack1", SOUND_ATTACK1},
+    {"attack2", SOUND_ATTACK2},
+    {"random", SOUND_RANDOM},
+    {"special1", SOUND_SPECIAL1},
+    {"special2", SOUND_SPECIAL2}
+};
 
 void to_json(nlohmann::json& j, const PK2Sprite& c){
 
@@ -42,18 +51,13 @@ void to_json(nlohmann::json& j, const PK2Sprite& c){
     j["type"] = c.sprite_type;
     j["bmp"] = c.bmp_path;
 
-    std::vector<json> v1;
-    for(int i=0;i<7;++i)
-    {
-        if( *c.sound_path[i] != '\0')
-        {
-            json sound;
-            sound["path"] = c.sound_path[i];
-            sound["type"] = c.sound_types[i];
-            v1.emplace_back(sound);
-        }
+    json sounds;
+    for(const std::pair<std::string, int> &p: soundsMap){
+        sounds[p.first] = c.sound_path[p.second];
+        
     }
-    j["sounds"] = v1;
+
+    j["sounds"] = sounds;
 
     json anim;
     anim["frames_number"] = c.frames_number;
@@ -143,9 +147,10 @@ void to_json(nlohmann::json& j, const PK2Sprite& c){
 
     unused_data["transparency"] = c.transparency;
     unused_data["is_transparent"] = c.is_transparent;
-    unused_data["charge_time2"] = c.unused_charge_time2;
 
     j["unused_data"] = unused_data;
+
+    j["charge_time_projectile"] = c.charge_time_projectile;
 
     j["can_glide"] = c.can_glide;
     j["boss"] = c.boss;
@@ -317,10 +322,12 @@ void from_json(const nlohmann::json&j, PK2Sprite& sprite){
 
     if(j.contains("unused_data")){
         const nlohmann::json& udj = j["unused_data"];
-        get_int_field(udj, "charge_time2", sprite.unused_charge_time2);
+        
         get_boolean_field(udj, "is_transparent", sprite.is_transparent);
         get_unsigned_char_field(udj, "transparency", sprite.transparency);
     }
+
+    get_int_field(j, "charge_time_projectile", sprite.charge_time_projectile);
 
     get_boolean_field(j, "vibrates", sprite.vibrates);
     

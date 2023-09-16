@@ -3,6 +3,7 @@
 #include <istream>
 #include "3rd_party/json.hpp"
 #include <stdexcept>
+#include <map>
 
 /*
 #define PK2SPRITE_CURRENT_VERSION "1.3"
@@ -36,12 +37,22 @@ public:
     bool  loop;                             // loop
 };
 
+enum {
+
+    SOUND_DAMAGE,
+    SOUND_DESTRUCTION,
+    SOUND_ATTACK1,
+    SOUND_ATTACK2,
+    SOUND_RANDOM,
+    SOUND_SPECIAL1,
+    SOUND_SPECIAL2
+
+};
 
 class PK2Sprite
 {
 public:
     PK2Sprite();
-    void clear();
 
     char version[4];
     int    sprite_type;											// sprite type
@@ -105,7 +116,7 @@ public:
 
     unsigned char     transparency;									// transparency //unused
     bool   is_transparent;											// if it is transparent //unused
-    int    unused_charge_time2;										//*ammuspriten ampujalle aiheuttama charge_time
+    int    charge_time_projectile;										//*ammuspriten ampujalle aiheuttama charge_time
     bool   can_glide;										// can drip quietly down?
     bool   boss;											// if it is a boss //unused
     bool   bonus_always;									// if not there is 1/4 chance of droping bonus

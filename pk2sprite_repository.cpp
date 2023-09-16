@@ -19,6 +19,12 @@ PK2SpriteRepository::PK2SpriteRepository(const std::string& pk2_path){
                     this->mSpritesMap.emplace(std::make_pair(filename.substr(0, filename.size() -4),
                     sprite));
 
+                    for(int i=0;i<7;++i){
+                        if(sprite.sound_types[i]!=-1){
+                            std::cout<<filename<<": "<<sprite.sound_types[i]<<std::endl;
+                        }
+                    }
+
                 }
                 catch(const PK2SpriteBadFormatException& e){}               
             }            
