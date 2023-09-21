@@ -20,9 +20,13 @@ PK2SpriteRepository::PK2SpriteRepository(const std::string& pk2_path){
                     sprite));
 
                     for(int i=0;i<7;++i){
-                        if(sprite.sound_types[i]!=-1){
-                            std::cout<<filename<<": "<<sprite.sound_types[i]<<std::endl;
+                        if(sprite.sounds[i]!=-1){
+                            std::cout<<filename<<": "<<sprite.sounds[i]<<std::endl;
                         }
+                    }
+
+                    if(sprite.checkAnimation()){
+                        std::cout<<"Not animation friendly:"<<filename<<std::endl;
                     }
 
                 }

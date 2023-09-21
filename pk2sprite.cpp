@@ -18,18 +18,17 @@ PK2Sprite::PK2Sprite(){
         c[i] = 0;
     }
 
-    strcpy(this->version, "1.3");
-    strcpy(this->bmp_path, "");
+    strcpy(this->picture, "");
     
     for(int i=0;i<7;++i){
-        strcpy(this->sound_path[i], "");
+        strcpy(this->sound_files[i], "");
     }
 
     strcpy(this->name, "nameless sprite");
-    strcpy(this->sprite_to_turn_into, "");
+    strcpy(this->transformation_sprite, "");
     strcpy(this->bonus_sprite, "");
-    strcpy(this->ammo1, "");
-    strcpy(this->ammo2, "");
+    strcpy(this->ammo1_sprite, "");
+    strcpy(this->ammo2_sprite, "");
 }
 
 std::map<std::string, int> soundsMap ={
@@ -42,6 +41,32 @@ std::map<std::string, int> soundsMap ={
     {"special2", SOUND_SPECIAL2}
 };
 
+enum {
+
+    ANIMATION_IDLE,
+    ANIMATION_WALKING,
+    ANIMATION_JUMP_UP,
+    ANIMATION_HYPPY_DOWN,
+    ANIMATION_SQUAT,
+    ANIMATION_DAMAGE,
+    ANIMATION_DEATH,
+    ANIMATION_ATTACK1,
+    ANIMATION_ATTACK2
+
+};
+
+std::map<std::string, int> animationsMap = {
+    {"idle", ANIMATION_IDLE},
+    {"walking", ANIMATION_WALKING},
+    {"jump_up", ANIMATION_JUMP_UP},
+    {"jump_down", ANIMATION_HYPPY_DOWN},
+    {"squat", ANIMATION_SQUAT},
+    {"damage", ANIMATION_DAMAGE},
+    {"death", ANIMATION_DEATH},
+    {"attack1", ANIMATION_ATTACK1},
+    {"attack2", ANIMATION_ATTACK2}
+};
+
 void to_json(nlohmann::json& j, const PK2Sprite& c){
 
     using json = nlohmann::json;
@@ -49,51 +74,38 @@ void to_json(nlohmann::json& j, const PK2Sprite& c){
     j["version"] = "2.0";
 
     j["type"] = c.sprite_type;
-    j["bmp"] = c.bmp_path;
+    j["picture"] = c.picture;
 
     json sounds;
     for(const std::pair<std::string, int> &p: soundsMap){
-        sounds[p.first] = c.sound_path[p.second];
+        sounds[p.first] = c.sound_files[p.second];
         
     }
 
     j["sounds"] = sounds;
+    j["frames_number"] = c.frames_number;
+    j["frame_rate"] = c.frame_rate;
 
-    json anim;
-    anim["frames_number"] = c.frames_number;
-    anim["animations_number"] = c.animations_number;
-
-    std::vector<json> sequences;
-
-    for(int i=0;i<20;++i)
-    {
-        
-        const PK2SPRITE_ANIMATION& s = c.animation_sequences[i];
-        if(s.frames!=0)
-        {
-            json anim_seqence;
-
-            int frames_number = s.frames;
-            if(frames_number>10) frames_number = 10;
-
-            //anim_seqence["frames_number"] = frames_number;
-            anim_seqence["sequence"] = std::vector<int>(s.sequence, s.sequence + frames_number);
-            anim_seqence["loop"] = s.loop;
-            sequences.emplace_back(anim_seqence);
-        }
+    json animations;
+    for(const std::pair<std::string, int>&p :animationsMap){
+        const PK2SPRITE_ANIMATION& s = c.animaatiot[p.second];
+        json anim_case;
+        anim_case["loop"] = s.loop;
+        anim_case["sequence"] = std::vector<int>(s.sequence, s.sequence + s.frames);
+        animations[p.first] = anim_case;
     }
-    anim["sequences"] = sequences;
-    anim["frame_rate"] = c.frame_rate;
 
-    j["animations"] = anim;
+    j["animations"] = animations;
+
+
     json frame;
 
     //frame["rate"] = c.frame_rate;
-    frame["pos_x"] = c.frame_x_pos;
-    frame["pos_y"] = c.frame_y_pos;
-    frame["width"] = c.frame_width;
-    frame["height"] = c.frame_height;
-    frame["space"] = c.space_between_frames;
+    frame["frame_x"] = c.picture_frame_x;
+    frame["frame_y"] = c.picture_frame_y;
+    frame["width"] = c.picture_frame_width;
+    frame["height"] = c.picture_frame_height;
+    frame["space"] = c.picture_frame_space;
 
     j["frame"] = frame;
 
@@ -103,9 +115,9 @@ void to_json(nlohmann::json& j, const PK2Sprite& c){
     j["weight"] = c.weight;
     j["enemy"] = c.enemy;
     j["energy"] = c.energy;
-    j["demage"] = c.demage;
-    j["demage_type"] = c.demage_type;
-    j["protection_type"] = c.protection_type;
+    j["damage"] = c.damage;
+    j["damage_type"] = c.damage_type;
+    j["immunity_type"] = c.immunity_type;
     j["score"] = c.score;
 
     std::vector<int> ai_vec;
@@ -119,11 +131,11 @@ void to_json(nlohmann::json& j, const PK2Sprite& c){
     }
 
     j["ai"] = ai_vec;
-    j["max_jump_time"] = c.max_jump_time;
+    j["max_jump"] = c.max_jump;
     j["max_speed"] = c.max_speed;
     j["charge_time"] = c.charge_time;
     j["color"] = c.color;
-    j["is_wall"] = c.isWall;
+    j["is_wall"] = c.is_wall;
     j["how_destroyed"] = c.how_destroyed;
     j["can_open_locks"] = c.can_open_locks;
     j["vibrates"] = c.vibrates;
@@ -131,26 +143,22 @@ void to_json(nlohmann::json& j, const PK2Sprite& c){
     j["attack1_time"] = c.attack1_time;
     j["attack2_time"] = c.attack2_time;
     j["parallax_type"] = c.parallax_type;
-    j["sprite_to_turn_into"] = c.sprite_to_turn_into;
+    j["transformation_sprite"] = c.transformation_sprite;
     j["bonus_sprite"] = c.bonus_sprite;
-    j["ammo1"] = c.ammo1;
-    j["ammo2"] = c.ammo2;
+    j["ammo1"] = c.ammo1_sprite;
+    j["ammo2"] = c.ammo2_sprite;
     j["makes_sounds"] = c.makes_sounds;
     j["sound_frequency"] = c.sound_frequency;
     j["random_sound_frequency"] = c.random_sound_frequency;
     j["is_wall_up"] = c.is_wall_up;
     j["is_wall_down"] = c.is_wall_down;
-    j["is_wall_right"] = c.is_wall_rigth;
+    j["is_wall_right"] = c.is_wall_right;
     j["is_wall_left"] = c.is_wall_left;
 
-    json unused_data;
+    j["effect"] = c.effect;
+    j["is_transparent"] = c.is_transparent;
 
-    unused_data["transparency"] = c.transparency;
-    unused_data["is_transparent"] = c.is_transparent;
-
-    j["unused_data"] = unused_data;
-
-    j["charge_time_projectile"] = c.charge_time_projectile;
+    j["projectile_charge_time"] = c.projectile_charge_time;
 
     j["can_glide"] = c.can_glide;
     j["boss"] = c.boss;
@@ -195,7 +203,20 @@ void get_unsigned_char_field(const nlohmann::json&j, const char*name, unsigned c
     }
 }
 
+bool PK2Sprite::checkAnimation()const{
+
+    int state =0;
+    for(std::size_t i=ANIMATION_ATTACK2+1;i<20;++i){
+        if(this->animaatiot[i].frames!=0){
+            return true;
+        }
+    }
+
+    return false;
+}
+
 // I haven't tested this function yet, it may have bugs!
+/*
 void from_json(const nlohmann::json&j, PK2Sprite& sprite){
     if(j.contains("ai")){
         const nlohmann::json& ai_table = j["ai"];
@@ -334,7 +355,7 @@ void from_json(const nlohmann::json&j, PK2Sprite& sprite){
     get_double_field(j, "weight", sprite.weight);
 
     get_int_field(j, "width", sprite.width);
-}
+}*/
 
 PK2Sprite loadFromSPR(const std::string & filename)
 {
@@ -354,22 +375,19 @@ PK2Sprite loadFromSPR(std::istream & in)
 {
     PK2Sprite sprite;
     char* ptr = reinterpret_cast<char*>(&sprite);
-    in.read(ptr, 1140);
-
-    if(std::string(sprite.version)!="1.3"){
+    char version[4];
+    in.read(version, 4);
+    if(std::string(version)!="1.3"){
         throw PK2SpriteBadFormatException();//std::runtime_error("Incorrect sprite format");
     }
-
-    ptr+=1144;
-    in.read(ptr, 528);
+    in.read(ptr, sizeof(sprite));
     return sprite;
 }
 
 void saveToSPR(const PK2Sprite& sprite, const std::string&filename)
 {
     std::ofstream out;
-    out.open(filename.c_str(), std::ios::binary|std::ios::out);
-    
+    out.open(filename.c_str(), std::ios::binary|std::ios::out);   
     if(!out.good())
     {
         throw std::runtime_error("Cannot create file: "+filename);
@@ -381,10 +399,9 @@ void saveToSPR(const PK2Sprite& sprite, const std::string&filename)
 
 void saveToSPR(const PK2Sprite& sprite, std::ostream & out)
 {
+    out.write("1.3", 4);
     const char* ptr = reinterpret_cast<const char*>(&sprite);
-    out.write(ptr, 1140);
-    ptr+=1144;
-    out.write(ptr, 528);
+    out.write(ptr, sizeof(sprite));
 }
 
 }
