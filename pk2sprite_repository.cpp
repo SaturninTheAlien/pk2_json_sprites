@@ -1,7 +1,10 @@
 #include "pk2sprite_repository.h"
+#include <string>
 #include <filesystem>
 #include <algorithm>
 #include <iostream>
+#include <fstream>
+#include <sstream>
 
 namespace pk2sprite{
 namespace fs = std::filesystem;
@@ -11,26 +14,25 @@ PK2SpriteRepository::PK2SpriteRepository(const std::string& pk2_path){
     for (const auto & entry : fs::directory_iterator(pk2_path)){
         if(entry.is_regular_file()){
             fs::path p = entry.path();
-            std::string filename = p.filename();
+            std::string filename = p.filename().string();
             if(filename.size()>4 && filename.substr(filename.size()-4,4)==".spr"){
 
+                //std::cout<<filename<<std::endl;
+
                 try{
-                    PK2Sprite sprite = loadFromSPR(p);
+                    PrototypeClass sprite;
+                    sprite.Load(p.string(), true);
                     this->mSpritesMap.emplace(std::make_pair(filename.substr(0, filename.size() -4),
                     sprite));
 
-                    for(int i=0;i<7;++i){
-                        if(sprite.sounds[i]!=-1){
-                            std::cout<<filename<<": "<<sprite.sounds[i]<<std::endl;
-                        }
-                    }
+                    /*std::ostringstream os;
+                    os<<"./json_sprites/"<<filename<<"2";
 
-                    if(sprite.checkAnimation()){
-                        std::cout<<"Not animation friendly:"<<filename<<std::endl;
-                    }
-
+                    std::cout<<os.str()<<std::endl;       */             
                 }
-                catch(const PK2SpriteBadFormatException& e){}               
+                catch(const PK2SpriteBadFormatException& e){
+                    //std::cout<<filename<<std::endl;
+                }               
             }            
         }
     }

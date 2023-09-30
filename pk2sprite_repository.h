@@ -7,7 +7,7 @@
 
 #include <map>
 #include <shared_mutex>
-#include "pk2sprite.h"
+#include "spriteclass.hpp"
 
 namespace pk2sprite{
 
@@ -27,7 +27,7 @@ private:
     }
     
     //std::vector<PK2Sprite> mSprites;
-    std::map<std::string, PK2Sprite> mSpritesMap;
+    std::map<std::string, PrototypeClass> mSpritesMap;
     //mutable std::shared_mutex mSharedMutex;
 };
 

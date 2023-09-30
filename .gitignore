@@ -5,3 +5,5 @@ start.sh
 .vscode
 test.cpp
 a.out
+
+*.DS_Store
