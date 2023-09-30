@@ -578,8 +578,8 @@ void to_json(nlohmann::json& j, const PrototypeClass& c){
 
 
     json frame;
-    frame["frame_x"] = c.picture_frame_x;
-    frame["frame_y"] = c.picture_frame_y;
+    frame["pos_x"] = c.picture_frame_x;
+    frame["pos_y"] = c.picture_frame_y;
     frame["width"] = c.picture_frame_width;
     frame["height"] = c.picture_frame_height;
 
