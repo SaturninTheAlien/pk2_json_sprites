@@ -18,17 +18,23 @@ PK2SpriteRepository::PK2SpriteRepository(const std::string& pk2_path){
             if(filename.size()>4 && filename.substr(filename.size()-4,4)==".spr"){
 
                 //std::cout<<filename<<std::endl;
-
                 try{
                     PrototypeClass sprite;
                     sprite.Load(p.string(), true);
                     this->mSpritesMap.emplace(std::make_pair(filename.substr(0, filename.size() -4),
                     sprite));
+                    
+                    
+                    /*nlohmann::json sprite_j = sprite;
 
-                    /*std::ostringstream os;
+                    std::ostringstream os;
                     os<<"./json_sprites/"<<filename<<"2";
+                    std::string new_path = os.str();
+                    //std::cout<<new_path<<std::endl;
 
-                    std::cout<<os.str()<<std::endl;       */             
+                    std::ofstream file_out(new_path.c_str());
+                    file_out << sprite_j.dump(4);
+                    file_out.close();*/
                 }
                 catch(const PK2SpriteBadFormatException& e){
                     //std::cout<<filename<<std::endl;

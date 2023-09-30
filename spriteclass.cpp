@@ -306,8 +306,8 @@ const std::map<std::string, int> jsonSoundsMap ={
     {"attack1", SOUND_ATTACK1},
     {"attack2", SOUND_ATTACK2},
     {"random", SOUND_RANDOM},
-    {"special1", SOUND_SPECIAL1},
-    {"special2", SOUND_SPECIAL2}
+    /*{"special1", SOUND_SPECIAL1},
+    {"special2", SOUND_SPECIAL2}*/
 };
 
 void jsonReadString(const nlohmann::json& j, const std::string name, std::string& target){
@@ -586,8 +586,11 @@ void to_json(nlohmann::json& j, const PrototypeClass& c){
     j["frame"] = frame;
 
     j["name"] = c.name;
-    j["width"] = c.width;
-    j["height"] = c.height;
+    json size;
+	size["width"]  = c.width;
+	size["height"] = c.height;
+
+	j["size"] = size;
     j["weight"] = c.weight;
     j["enemy"] = c.enemy;
     j["energy"] = c.energy;

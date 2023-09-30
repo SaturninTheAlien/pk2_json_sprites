@@ -7,3 +7,5 @@ test.cpp
 a.out
 
 *.DS_Store
+
+json_sprites/*
