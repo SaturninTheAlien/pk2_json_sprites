@@ -11,7 +11,7 @@
 namespace pk2sprite
 {
 	
-const char* current_json_sprite_version = "2.0_test2";
+const char* current_json_sprite_version = "2.0";
 
 void to_json(nlohmann::json& j, const SpriteAnimation& a){
 	j["loop"] = a.loop;
@@ -310,6 +310,17 @@ const std::map<std::string, int> jsonSoundsMap ={
     {"special2", SOUND_SPECIAL2}*/
 };
 
+const std::map<std::string ,u8> jsonColorsMap={
+	{"gray", COLOR_GRAY},
+	{"blue", COLOR_BLUE},
+	{"red", COLOR_RED},
+	{"green", COLOR_GREEN},
+	{"orange", COLOR_ORANGE},
+	{"violet", COLOR_VIOLET},
+	{"turquoise", COLOR_TURQUOISE},
+	{"normal", COLOR_NORMAL}
+};
+
 void jsonReadString(const nlohmann::json& j, const std::string name, std::string& target){
 	if(j.contains(name)){
 		target = j[name].get<std::string>();
@@ -369,7 +380,7 @@ void PrototypeClass::SetProto20(const nlohmann::json& j){
 
 	jsonReadBool(j, "bonus_always", this->bonus_always);
 
-	jsonReadString(j, "bonus_sprite", this->bonus_sprite);
+	jsonReadString(j, "bonus", this->bonus_sprite);
 
 	jsonReadInt(j, "bonuses_number", this->bonuses_number);
 
@@ -457,7 +468,7 @@ void PrototypeClass::SetProto20(const nlohmann::json& j){
 		}
 	}
 
-	jsonReadString(j, "transformation_sprite", this->transformation_sprite);
+	jsonReadString(j, "transformation", this->transformation_sprite);
 
 	jsonReadInt(j, "type", this->type);
 
@@ -603,7 +614,16 @@ void to_json(nlohmann::json& j, const PrototypeClass& c){
     j["max_jump"] = c.max_jump;
     j["max_speed"] = c.max_speed;
     j["charge_time"] = c.charge_time;
-    j["color"] = c.color;
+
+	j["color"] = c.color;
+
+	for(const std::pair<std::string, u8>& p:jsonColorsMap){
+		if(p.second==c.color){
+			j["color"] = p.first;
+			break;
+		}
+	}
+
     j["is_wall"] = c.is_wall;
     j["how_destroyed"] = c.how_destroyed;
     j["can_open_locks"] = c.can_open_locks;
@@ -612,8 +632,8 @@ void to_json(nlohmann::json& j, const PrototypeClass& c){
     j["attack1_time"] = c.attack1_time;
     j["attack2_time"] = c.attack2_time;
     j["parallax_type"] = c.parallax_type;
-    j["transformation_sprite"] = c.transformation_sprite;
-    j["bonus_sprite"] = c.bonus_sprite;
+    j["transformation"] = c.transformation_sprite;
+    j["bonus"] = c.bonus_sprite;
     j["ammo1"] = c.ammo1_sprite;
     j["ammo2"] = c.ammo2_sprite;
     j["makes_sounds"] = c.makes_sounds;
