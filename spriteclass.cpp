@@ -184,7 +184,7 @@ void PrototypeClass::SetProto12(PrototypeClass12 &proto){
 	random_sound_frequency			= proto.random_sound_frequency;
 	immunity_type				= proto.immunity_type;
 	vibrates				= proto.vibrates;
-	makes_sounds		= proto.makes_sounds;
+	check_tiles		= proto.check_tiles;
 	how_destroyed		= proto.how_destroyed;
 	type				= proto.sprite_type;
 	damage				= proto.damage;
@@ -253,7 +253,7 @@ void PrototypeClass::SetProto13(PrototypeClass13 &proto){
 	random_sound_frequency			= proto.random_sound_frequency;
 	immunity_type				= proto.immunity_type;
 	vibrates				= proto.vibrates;
-	makes_sounds		= proto.makes_sounds;
+	check_tiles		= proto.check_tiles;
 	how_destroyed		= proto.how_destroyed;
 	type				= proto.sprite_type;
 	damage				= proto.damage;
@@ -434,7 +434,7 @@ void PrototypeClass::SetProto20(const nlohmann::json& j){
 
 	jsonReadBool(j, "is_wall_up", this->is_wall_up);
 
-	jsonReadBool(j, "makes_sounds", this->makes_sounds);
+	jsonReadBool(j, "check_tiles", this->check_tiles);
 
 	jsonReadInt(j, "max_jump", this->max_jump);
 
@@ -636,7 +636,7 @@ void to_json(nlohmann::json& j, const PrototypeClass& c){
     j["bonus"] = c.bonus_sprite;
     j["ammo1"] = c.ammo1_sprite;
     j["ammo2"] = c.ammo2_sprite;
-    j["makes_sounds"] = c.makes_sounds;
+    j["check_tiles"] = c.check_tiles;
     j["sound_frequency"] = c.sound_frequency;
     j["random_sound_frequency"] = c.random_sound_frequency;
     j["is_wall_up"] = c.is_wall_up;
