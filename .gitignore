@@ -9,4 +9,5 @@ a.out
 *.DS_Store
 
 *.zip
-json_sprites/*
+json_sprites
+mapstore

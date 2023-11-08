@@ -25,7 +25,7 @@ PK2SpriteRepository::PK2SpriteRepository(const std::string& pk2_path){
                     sprite));
                     
                     
-                    /*nlohmann::json sprite_j = sprite;
+                    nlohmann::json sprite_j = sprite;
 
                     std::ostringstream os;
                     os<<"./json_sprites/"<<filename<<"2";
@@ -34,7 +34,7 @@ PK2SpriteRepository::PK2SpriteRepository(const std::string& pk2_path){
 
                     std::ofstream file_out(new_path.c_str());
                     file_out << sprite_j.dump(4);
-                    file_out.close();*/
+                    file_out.close();
                 }
                 catch(const PK2SpriteBadFormatException& e){
                     //std::cout<<filename<<std::endl;
