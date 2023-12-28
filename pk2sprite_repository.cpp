@@ -6,6 +6,9 @@
 #include <fstream>
 #include <sstream>
 
+std::vector<int> AIs_to_check = {129, 31, 32, 33, 34, 68, 69, 82, 83, 40, 84, 85, 86, 87, 88, 89, 90, 91, 92, 93, 141};
+//std::vector<int> AIs_to_check = {134};
+
 namespace pk2sprite{
 namespace fs = std::filesystem;
 
@@ -23,9 +26,16 @@ PK2SpriteRepository::PK2SpriteRepository(const std::string& pk2_path){
                     sprite.Load(p.string(), true);
                     this->mSpritesMap.emplace(std::make_pair(filename.substr(0, filename.size() -4),
                     sprite));
+
+                    for(const int& ai:AIs_to_check){
+                        //std::cout<<ai<<std::endl;
+                        if(sprite.HasAI(ai)){
+                            std::cout<<ai<<""<<filename<<std::endl;
+                        }
+                    }
                     
                     
-                    nlohmann::json sprite_j = sprite;
+                    /*nlohmann::json sprite_j = sprite;
 
                     std::ostringstream os;
                     os<<"./json_sprites/"<<filename<<"2";
@@ -34,7 +44,7 @@ PK2SpriteRepository::PK2SpriteRepository(const std::string& pk2_path){
 
                     std::ofstream file_out(new_path.c_str());
                     file_out << sprite_j.dump(4);
-                    file_out.close();
+                    file_out.close();*/
                 }
                 catch(const PK2SpriteBadFormatException& e){
                     //std::cout<<filename<<std::endl;
